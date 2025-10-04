@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { createClient } from "@/lib/supabase/client"
 import { getCookieId } from "@/lib/utils/cookie"
 import { getDateClassName, formatDate } from "@/lib/utils/date"
-import type { SurveyWithDates } from "@/lib/types"
+import type { SurveyDate, SurveyWithDates } from "@/lib/types"
 import { CheckCircle2, Triangle, XCircle, ExternalLink } from "lucide-react"
 import Link from "next/link"
 
@@ -52,7 +52,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
       } else if (data) {
         setSurvey(data as SurveyWithDates)
         // 初期化: すべての日程に対して「未選択」状態を作成
-        const initialAnswers = data.survey_dates.map((date) => ({
+        const initialAnswers = data.survey_dates.map((date: SurveyDate) => ({
           survey_date_id: date.id,
           availability: "unavailable" as const,
           note: "",
@@ -165,7 +165,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
   }
 
   const sortedDates = [...survey.survey_dates].sort(
-    (a, b) => new Date(a.date_value).getTime() - new Date(b.date_value).getTime(),
+    (a: SurveyDate, b: SurveyDate) => new Date(a.date_value).getTime() - new Date(b.date_value).getTime(),
   )
 
   return (
@@ -212,7 +212,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
 
               <div className="space-y-4">
                 <Label>日程の都合</Label>
-                {sortedDates.map((date) => {
+                {sortedDates.map((date: SurveyDate) => {
                   const answer = answers.find((a) => a.survey_date_id === date.id)
                   const dateClassName = getDateClassName(date.date_value)
 

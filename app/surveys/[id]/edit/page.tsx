@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { createClient } from "@/lib/supabase/client"
-import type { SurveyWithDates } from "@/lib/types"
+import type { SurveyDate, SurveyWithDates } from "@/lib/types"
 import { ArrowLeft, Plus, X } from "lucide-react"
 import Link from "next/link"
 
@@ -47,8 +47,8 @@ export default function EditSurveyPage({ params }: { params: { id: string } }) {
         setDescription(data.description || "")
         setDates(
           data.survey_dates
-            .sort((a, b) => new Date(a.date_value).getTime() - new Date(b.date_value).getTime())
-            .map((d) => ({ id: d.id, date_value: d.date_value })),
+            .sort((a: SurveyDate, b: SurveyDate) => new Date(a.date_value).getTime() - new Date(b.date_value).getTime())
+            .map((d: SurveyDate) => ({ id: d.id, date_value: d.date_value })),
         )
       }
       setIsLoading(false)

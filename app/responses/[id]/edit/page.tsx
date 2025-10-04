@@ -11,9 +11,9 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { createClient } from "@/lib/supabase/client"
 import { getDateClassName, formatDate } from "@/lib/utils/date"
-import type { ResponseWithDetails, SurveyWithDates } from "@/lib/types"
-import { ArrowLeft, CheckCircle2, Circle, XCircle, ExternalLink } from "lucide-react"
+import type { ResponseDetail, ResponseWithDetails, SurveyWithDates } from "@/lib/types"
 import Link from "next/link"
+import { ArrowLeft, CheckCircle2, Circle, XCircle, ExternalLink } from "lucide-react"
 
 type AvailabilityAnswer = {
   detail_id: string
@@ -74,7 +74,7 @@ export default function EditResponsePage({ params }: { params: { id: string } })
       } else {
         setSurvey(surveyData as SurveyWithDates)
         // 回答詳細を初期化
-        const initialAnswers = responseData.response_details.map((detail) => ({
+        const initialAnswers = responseData.response_details.map((detail: ResponseDetail) => ({
           detail_id: detail.id,
           survey_date_id: detail.survey_date_id,
           availability: detail.availability,

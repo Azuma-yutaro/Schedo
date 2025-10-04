@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server"
 import { formatDate, getDateClassName } from "@/lib/utils/date"
 import { ArrowLeft, CheckCircle2, Circle, XCircle } from "lucide-react"
 import { ResultsChart } from "@/components/results-chart"
+import type { SurveyDate, ResponseWithDetails, ResponseDetail } from "@/lib/types"
 
 export default async function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -40,17 +41,19 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
     .eq("survey_id", id)
     .order("created_at", { ascending: false })
 
-  const sortedDates = [...survey.survey_dates].sort(
-    (a, b) => new Date(a.date_value).getTime() - new Date(b.date_value).getTime(),
+  const sortedDates: SurveyDate[] = [...survey.survey_dates].sort(
+    (a: SurveyDate, b: SurveyDate) => new Date(a.date_value).getTime() - new Date(b.date_value).getTime(),
   )
 
   // 集計データの作成
-  const aggregatedData = sortedDates.map((date) => {
-    const dateResponses = responses?.flatMap((r) => r.response_details.filter((rd) => rd.survey_date_id === date.id))
+  const aggregatedData = sortedDates.map((date: SurveyDate) => {
+    const dateResponses = responses?.flatMap((r: ResponseWithDetails) =>
+      r.response_details.filter((rd: ResponseDetail) => rd.survey_date_id === date.id),
+    )
 
-    const available = dateResponses?.filter((rd) => rd.availability === "available").length || 0
-    const maybe = dateResponses?.filter((rd) => rd.availability === "maybe").length || 0
-    const unavailable = dateResponses?.filter((rd) => rd.availability === "unavailable").length || 0
+    const available = dateResponses?.filter((rd: ResponseDetail) => rd.availability === "available").length || 0
+    const maybe = dateResponses?.filter((rd: ResponseDetail) => rd.availability === "maybe").length || 0
+    const unavailable = dateResponses?.filter((rd: ResponseDetail) => rd.availability === "unavailable").length || 0
 
     return {
       date: date.date_value,
@@ -105,7 +108,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
                   <thead>
                     <tr className="border-b">
                       <th className="p-3 text-left font-semibold">お名前</th>
-                      {sortedDates.map((date) => (
+                      {sortedDates.map((date: SurveyDate) => (
                         <th key={date.id} className="p-3 text-center font-semibold">
                           <div className={`text-sm ${getDateClassName(date.date_value)}`}>
                             {formatDate(date.date_value)}
@@ -115,11 +118,11 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
                     </tr>
                   </thead>
                   <tbody>
-                    {responses.map((response) => (
+                    {(responses as ResponseWithDetails[]).map((response: ResponseWithDetails) => (
                       <tr key={response.id} className="border-b hover:bg-muted/50">
                         <td className="p-3 font-medium">{response.respondent_name}</td>
-                        {sortedDates.map((date) => {
-                          const detail = response.response_details.find((rd) => rd.survey_date_id === date.id)
+                        {sortedDates.map((date: SurveyDate) => {
+                          const detail = response.response_details.find((rd: ResponseDetail) => rd.survey_date_id === date.id)
                           return (
                             <td key={date.id} className="p-3 text-center">
                               {detail?.availability === "available" && (
@@ -167,16 +170,18 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {responses.map((response) => {
-                  const notesDetails = response.response_details.filter((rd) => rd.availability === "maybe" && rd.note)
+                {(responses as ResponseWithDetails[]).map((response: ResponseWithDetails) => {
+                  const notesDetails = response.response_details.filter(
+                    (rd: ResponseDetail) => rd.availability === "maybe" && rd.note,
+                  )
                   if (notesDetails.length === 0) return null
 
                   return (
                     <div key={response.id} className="rounded-md border p-4">
                       <h4 className="mb-2 font-semibold">{response.respondent_name}</h4>
                       <div className="space-y-2">
-                        {notesDetails.map((detail) => {
-                          const date = sortedDates.find((d) => d.id === detail.survey_date_id)
+                        {notesDetails.map((detail: ResponseDetail) => {
+                          const date = sortedDates.find((d: SurveyDate) => d.id === detail.survey_date_id)
                           return (
                             <div key={detail.id} className="text-sm">
                               <span className={`font-medium ${date ? getDateClassName(date.date_value) : ""}`}>

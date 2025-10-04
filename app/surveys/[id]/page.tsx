@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { createClient } from "@/lib/supabase/server"
 import { formatDate } from "@/lib/utils/date"
 import { ArrowLeft, Edit, ExternalLink } from "lucide-react"
+import type { SurveyDate } from "@/lib/types"
 
 export default async function SurveyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -114,8 +115,8 @@ export default async function SurveyDetailPage({ params }: { params: Promise<{ i
           <CardContent>
             <div className="space-y-2">
               {survey.survey_dates
-                ?.sort((a, b) => new Date(a.date_value).getTime() - new Date(b.date_value).getTime())
-                .map((date) => (
+                ?.sort((a: SurveyDate, b: SurveyDate) => new Date(a.date_value).getTime() - new Date(b.date_value).getTime())
+                .map((date: SurveyDate) => (
                   <div key={date.id} className="rounded-md border p-3">
                     <p className="font-medium">{formatDate(date.date_value)}</p>
                   </div>
