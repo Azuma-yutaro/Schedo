@@ -51,10 +51,10 @@ export default function RespondPage({ params }: { params: { id: string } }) {
         setError("アンケートの読み込みに失敗しました")
       } else if (data) {
         setSurvey(data as SurveyWithDates)
-        // 初期化: すべての日程に対して「未選択」状態を作成
+        // 初期化: すべての日程に対して「参加できる」状態を作成
         const initialAnswers = data.survey_dates.map((date: SurveyDate) => ({
           survey_date_id: date.id,
-          availability: "unavailable" as const,
+          availability: "available" as const,
           note: "",
         }))
         setAnswers(initialAnswers)
@@ -223,7 +223,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
                       </CardHeader>
                       <CardContent className="space-y-3">
                         <RadioGroup
-                          value={answer?.availability || "unavailable"}
+                          value={answer?.availability || "available"}
                           onValueChange={(value) =>
                             updateAnswer(date.id, value as "available" | "maybe" | "unavailable")
                           }
@@ -235,7 +235,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
                               className="flex cursor-pointer items-center gap-2 text-base"
                             >
                               <CheckCircle2 className="h-5 w-5 text-green-600" />
-                              <span>参加できます</span>
+                              <span>参加できる</span>
                             </Label>
                           </div>
                           <div className="flex items-center space-x-3">
@@ -245,7 +245,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
                               className="flex cursor-pointer items-center gap-2 text-base"
                             >
                               <Triangle className="h-5 w-5 text-yellow-600 fill-yellow-600" />
-                              <span>条件付きで参加できます</span>
+                              <span>条件付きで参加できる</span>
                             </Label>
                           </div>
                           <div className="flex items-center space-x-3">
