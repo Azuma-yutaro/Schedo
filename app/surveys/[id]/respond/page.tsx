@@ -173,7 +173,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
       <div className="mx-auto max-w-3xl p-6 md:p-10">
         <div className="mb-6 flex items-center justify-between">
           <Link
-            href="/"
+            href=""
             className="text-2xl font-bold tracking-tight text-[#d4c5f9] hover:text-[#c5b3e8] transition-colors"
           >
             Schedo
