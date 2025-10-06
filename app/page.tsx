@@ -1,25 +1,111 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { createClient } from "@/lib/supabase/server"
+import { Input } from "@/components/ui/input"
+import { createClient } from "@/lib/supabase/client"
 import { formatDate } from "@/lib/utils/date"
 import { Calendar, Plus } from "lucide-react"
 
-export default async function HomePage() {
-  const supabase = await createClient()
+// Surveyの型定義
+interface SurveyDate {
+  id: string
+  survey_id: string
+  date: string
+  start_time: string
+  end_time: string
+}
 
-  const { data: surveys, error } = await supabase
-    .from("surveys")
-    .select(
-      `
-      *,
-      survey_dates (*)
-    `,
+interface Survey {
+  id: string
+  title: string
+  description: string | null
+  created_at: string
+  survey_dates: SurveyDate[] | null
+}
+
+export default function HomePage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [password, setPassword] = useState("")
+  const [surveys, setSurveys] = useState<Survey[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [isAuthChecked, setIsAuthChecked] = useState(false)
+
+  useEffect(() => {
+    const authenticated = localStorage.getItem("isAuthenticated") === "true"
+    setIsAuthenticated(authenticated)
+    setIsAuthChecked(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isAuthenticated || !isAuthChecked) return
+
+    const fetchSurveys = async () => {
+      setLoading(true)
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("surveys")
+        .select(
+          `
+          *,
+          survey_dates (*)
+        `
+        )
+        .order("created_at", { ascending: false })
+
+      if (error) {
+        console.error("[v0] Error fetching surveys:", error)
+        setError(error.message)
+      } else {
+        setSurveys(data as Survey[])
+      }
+      setLoading(false)
+    }
+
+    fetchSurveys()
+  }, [isAuthenticated, isAuthChecked])
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (password === "1069") {
+      localStorage.setItem("isAuthenticated", "true")
+      setIsAuthenticated(true)
+    } else {
+      alert("パスワードが違います")
+      setPassword("")
+    }
+  }
+
+  if (!isAuthChecked) {
+    return null // or a loading spinner
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Card className="w-full max-w-sm">
+          <CardHeader>
+            <CardTitle>パスワード認証</CardTitle>
+            <CardDescription>ページを閲覧するにはパスワードを入力してください。</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="パスワード"
+                autoFocus
+              />
+              <Button type="submit">認証</Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     )
-    .order("created_at", { ascending: false })
-
-  if (error) {
-    console.error("[v0] Error fetching surveys:", error)
   }
 
   return (
@@ -38,7 +124,19 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        {surveys && surveys.length > 0 ? (
+        {loading ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <p>読み込み中...</p>
+            </CardContent>
+          </Card>
+        ) : error ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-16 text-destructive">
+              <p>エラーが発生しました: {error}</p>
+            </CardContent>
+          </Card>
+        ) : surveys && surveys.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {surveys.map((survey) => (
               <Link key={survey.id} href={`/surveys/${survey.id}`}>
