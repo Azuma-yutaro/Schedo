@@ -188,7 +188,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
 
         <div className="mb-8">
           <h1 className="text-balance text-4xl font-bold tracking-tight">{survey.title}</h1>
-          {survey.description && <p className="mt-2 text-pretty text-muted-foreground">{survey.description}</p>}
+          {survey.description && <p className="mt-2 text-pretty text-muted-foreground description " >{survey.description}</p>}
         </div>
 
         <Card className="border-[#d4c5f9]/50 shadow-lg shadow-[#d4c5f9]/10">

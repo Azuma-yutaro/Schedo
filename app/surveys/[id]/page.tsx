@@ -50,7 +50,7 @@ export default async function SurveyDetailPage({ params }: { params: Promise<{ i
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <h1 className="text-balance text-4xl font-bold tracking-tight">{survey.title}</h1>
-              {survey.description && <p className="mt-2 text-pretty text-muted-foreground">{survey.description}</p>}
+              {survey.description && <p className="mt-2 text-pretty text-muted-foreground description">{survey.description}</p>}
             </div>
             <Link href={`/surveys/${id}/edit`}>
               <Button variant="outline" className="gap-2 bg-transparent">
