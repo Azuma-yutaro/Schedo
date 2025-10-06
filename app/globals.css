@@ -151,3 +151,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* オリジナル */
+
+.description {
+    white-space: pre-wrap; /* ← これがポイント */
+  word-wrap: break-word; /* 長い単語で折り返し */
+}
