@@ -31,8 +31,14 @@ export default function RespondPage({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [suggestedName, setSuggestedName] = useState<string | null>(null)
 
   useEffect(() => {
+    const lastRespondentName = localStorage.getItem("lastRespondentName")
+    if (lastRespondentName) {
+      setSuggestedName(lastRespondentName)
+    }
+
     const fetchSurvey = async () => {
       const supabase = createClient()
       const { data, error } = await supabase
@@ -75,6 +81,13 @@ export default function RespondPage({ params }: { params: { id: string } }) {
     setAnswers((prev) =>
       prev.map((answer) => (answer.survey_date_id === survey_date_id ? { ...answer, note } : answer)),
     )
+  }
+
+  const handleSuggestionClick = () => {
+    if (suggestedName) {
+      setName(suggestedName)
+      setSuggestedName(null) // Hide the suggestion after clicking
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,7 +141,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
 
       if (detailsError) throw detailsError
 
-      // localStorageに保存（編集用）
+      // localStorageに保存（編集用・名前のサジェスト用）
       if (typeof window !== "undefined") {
         const savedResponses = JSON.parse(localStorage.getItem("my_responses") || "[]")
         savedResponses.push({
@@ -137,6 +150,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
           respondent_name: name.trim(),
         })
         localStorage.setItem("my_responses", JSON.stringify(savedResponses))
+        localStorage.setItem("lastRespondentName", name.trim())
       }
 
       router.push(`/surveys/${params.id}/results`)
@@ -208,6 +222,17 @@ export default function RespondPage({ params }: { params: { id: string } }) {
                   required
                   className="border-[#d4c5f9]/30 focus-visible:ring-[#d4c5f9]"
                 />
+                {suggestedName && !name && (
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={handleSuggestionClick}
+                      className="inline-flex items-center gap-x-2 rounded-full bg-green-500/10 px-3 py-1 text-sm font-medium text-green-400 transition-colors hover:bg-green-500/20"
+                    >
+                      <span>もしかして 「{suggestedName}」 さん？</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
