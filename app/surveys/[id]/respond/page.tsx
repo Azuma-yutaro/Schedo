@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -25,6 +25,7 @@ type AvailabilityAnswer = {
 
 export default function RespondPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [survey, setSurvey] = useState<SurveyWithDates | null>(null)
   const [name, setName] = useState("")
   const [answers, setAnswers] = useState<AvailabilityAnswer[]>([])
@@ -34,6 +35,11 @@ export default function RespondPage({ params }: { params: { id: string } }) {
   const [suggestedName, setSuggestedName] = useState<string | null>(null)
 
   useEffect(() => {
+    const nameFromQuery = searchParams.get("name")
+    if (nameFromQuery) {
+      setName(nameFromQuery)
+    }
+
     const lastRespondentName = localStorage.getItem("lastRespondentName")
     if (lastRespondentName) {
       setSuggestedName(lastRespondentName)
@@ -69,7 +75,7 @@ export default function RespondPage({ params }: { params: { id: string } }) {
     }
 
     fetchSurvey()
-  }, [params.id])
+  }, [params.id, searchParams])
 
   const updateAnswer = (survey_date_id: string, availability: "available" | "maybe" | "unavailable") => {
     setAnswers((prev) =>
